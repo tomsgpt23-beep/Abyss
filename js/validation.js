@@ -7,7 +7,7 @@ export function validateCatalogue(value){
   if(!/^[a-zA-Z0-9_-]+$/.test(b.id)||(b.id.startsWith('demo-')||['__proto__','constructor','prototype'].includes(b.id))||ids.has(b.id))throw Error('Book IDs must be unique, safe, and must not start with demo-.');ids.add(b.id);
   if(!Number.isInteger(b.position)||b.position<1||positions.has(b.position))throw Error('Positions must be unique positive integers.');positions.add(b.position);
   if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(b.publication))throw Error('Publication must use YYYY-MM.');
-  if(b.isbn10!==null&&b.isbn10!==undefined&&(typeof b.isbn10!=='string'||b.isbn10.length>40))throw Error('ISBN must be a string or null.');
+  if([b.isbn10,b.isbn13].some(isbn=>isbn!==null&&isbn!==undefined&&(typeof isbn!=='string'||isbn.length>40)))throw Error('ISBN must be a string or null.');
   if(b.isbnUnreliable!==undefined&&typeof b.isbnUnreliable!=='boolean')throw Error('isbnUnreliable must be boolean.');
   if(!b.sourceUrl||!isHttp(b.sourceUrl))throw Error('Each canonical record requires an HTTP(S) sourceUrl.');
   if(b.verificationNotes!==undefined&&(!Array.isArray(b.verificationNotes)||b.verificationNotes.some(n=>typeof n!=='string')))throw Error('verificationNotes must be an array of strings.');

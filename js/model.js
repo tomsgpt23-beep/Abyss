@@ -1,3 +1,4 @@
+import {bookISBNs,usableISBN} from './isbn.js';
 export const blank=()=>({owned:false,read:false,wanted:false,condition:'',price:'',date:'',notes:''});
 export function validateCollection(data,ids){
  if(!data||data.version!==1||!data.books||Array.isArray(data.books)||typeof data.books!=='object')throw Error('Expected a version 1 collection backup.');
@@ -16,6 +17,6 @@ export function validateCollection(data,ids){
 }
 export function selectBooks(books,collection,query='',filter='all',sort='chronological'){
  const q=query.trim().toLowerCase(), isbnQuery=q.replace(/[\s-]/g,'');
- return books.filter(b=>[b.title,b.author,b.isbn10||''].join(' ').toLowerCase().includes(q)||(/^\d[\dxX-\s]+$/.test(q)&&String(b.isbn10||'').replace(/[\s-]/g,'').toLowerCase().includes(isbnQuery))).filter(b=>filter==='all'||(filter==='missing'?!collection[b.id]?.owned:collection[b.id]?.[filter])).sort((a,b)=>sort==='alphabetical'?a.title.localeCompare(b.title):a.position-b.position);
+ return books.filter(b=>[b.title,b.author,...bookISBNs(b)].join(' ').toLowerCase().includes(q)||(/^\d[\dxX-\s]+$/.test(q)&&bookISBNs(b).some(isbn=>isbn.toLowerCase().includes(isbnQuery)))).filter(b=>filter==='all'||(filter==='missing'?!collection[b.id]?.owned:collection[b.id]?.[filter])).sort((a,b)=>sort==='alphabetical'?a.title.localeCompare(b.title):a.position-b.position);
 }
-export function sellerLink(seller,book){return seller.url+encodeURIComponent(book.isbn10&&!book.isbnUnreliable?book.isbn10:`${book.title} ${book.author}`);}
+export function sellerLink(seller,book){return seller.url+encodeURIComponent(usableISBN(book)||`${book.title} ${book.author}`);}
